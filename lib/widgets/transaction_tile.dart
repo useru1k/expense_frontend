@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/category.dart';
 import '../models/expense_transaction.dart';
 import '../utils/currency_formatter.dart';
 import 'category_icon.dart';

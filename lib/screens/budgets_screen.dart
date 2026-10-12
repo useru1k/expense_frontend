@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/budget.dart';
+import '../models/category.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/currency_formatter.dart';
