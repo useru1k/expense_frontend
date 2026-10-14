@@ -80,7 +80,7 @@ class AnalyticsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      '${formatCurrency(state.balance)} net saved',
+                      '${formatAppCurrency(context, state.balance)} net saved',
                       style: TextStyle(
                         color: state.balance >= 0
                             ? AppColors.green
@@ -107,7 +107,7 @@ class AnalyticsScreen extends StatelessWidget {
                   Expanded(
                     child: _InsightCard(
                       label: 'Average / week',
-                      value: formatCurrency(averageWeekly),
+                      value: formatAppCurrency(context, averageWeekly),
                       icon: Icons.show_chart_rounded,
                       color: AppColors.blue,
                     ),
@@ -116,7 +116,7 @@ class AnalyticsScreen extends StatelessWidget {
                   Expanded(
                     child: _InsightCard(
                       label: 'Budget left',
-                      value: formatCurrency(state.remainingBudget),
+                      value: formatAppCurrency(context, state.remainingBudget),
                       icon: Icons.account_balance_wallet_outlined,
                       color: state.remainingBudget >= 0
                           ? AppColors.green
@@ -278,7 +278,7 @@ class _AnalyticsCategoryRow extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      formatCurrency(amount),
+                      formatAppCurrency(context, amount),
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ],

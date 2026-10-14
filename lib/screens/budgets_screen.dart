@@ -70,7 +70,7 @@ class BudgetsScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            formatCurrency(state.totalExpenses),
+                            formatAppCurrency(context, state.totalExpenses),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 28,
@@ -79,7 +79,7 @@ class BudgetsScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'of ${formatCurrency(state.totalBudget)}',
+                          'of ${formatAppCurrency(context, state.totalBudget)}',
                           style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7)),
                         ),
@@ -102,8 +102,8 @@ class BudgetsScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       state.remainingBudget >= 0
-                          ? '${formatCurrency(state.remainingBudget)} remaining across categories'
-                          : '${formatCurrency(state.remainingBudget.abs())} over your category budgets',
+                          ? '${formatAppCurrency(context, state.remainingBudget)} remaining across categories'
+                          : '${formatAppCurrency(context, state.remainingBudget.abs())} over your category budgets',
                       style: TextStyle(
                         color: state.remainingBudget >= 0
                             ? AppColors.green
@@ -178,7 +178,7 @@ class _BudgetCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${formatCurrency(spent)} / ${formatCurrency(budget.limit)}',
+                '${formatAppCurrency(context, spent)} / ${formatAppCurrency(context, budget.limit)}',
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ],
@@ -198,8 +198,8 @@ class _BudgetCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Text(
               isOver
-                  ? '${formatCurrency(spent - budget.limit)} over'
-                  : '${formatCurrency(budget.limit - spent)} left',
+                  ? '${formatAppCurrency(context, spent - budget.limit)} over'
+                  : '${formatAppCurrency(context, budget.limit - spent)} left',
               style:
                   Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
             ),

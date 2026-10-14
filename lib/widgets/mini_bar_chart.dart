@@ -36,7 +36,8 @@ class MiniBarChart extends StatelessWidget {
                         Text(
                           values[index] == 0
                               ? ''
-                              : formatCompactCurrency(values[index]),
+                              : formatAppCompactCurrency(
+                                  context, values[index]),
                           style:
                               Theme.of(context).textTheme.labelSmall?.copyWith(
                                     color: Theme.of(context)

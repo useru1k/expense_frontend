@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/currency.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/section_header.dart';
@@ -89,9 +90,9 @@ class SettingsScreen extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.payments_outlined),
                       title: const Text('Currency'),
-                      subtitle: const Text('US Dollar (USD)'),
+                      subtitle: Text(state.selectedCurrency.displayName),
                       trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => _showCurrencyInfo(context),
+                      onTap: () => _showCurrencyPicker(context, state),
                     ),
                     const Divider(height: 1),
                     ListTile(
@@ -138,22 +139,58 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  static void _showCurrencyInfo(BuildContext context) {
+  static void _showCurrencyPicker(BuildContext context, AppState state) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (context) => const Padding(
-        padding: EdgeInsets.fromLTRB(24, 4, 24, 30),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Currency',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-            SizedBox(height: 8),
-            Text(
-                'The Phase 1 preview uses US Dollar (USD) for all mock transactions.'),
-          ],
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Choose currency',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Amounts are shown with your selected local symbol.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 10),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: CurrencyOption.all.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final currency = CurrencyOption.all[index];
+                    final isSelected =
+                        currency.code == state.selectedCurrency.code;
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Text(currency.flag,
+                          style: const TextStyle(fontSize: 24)),
+                      title: Text(currency.name),
+                      subtitle: Text('${currency.code}  •  ${currency.symbol}'),
+                      trailing: isSelected
+                          ? const Icon(Icons.check_circle_rounded,
+                              color: AppColors.green)
+                          : null,
+                      onTap: () {
+                        state.setCurrency(currency);
+                        Navigator.of(context).pop();
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -262,7 +262,7 @@ class _BalanceCard extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
-              formatCurrency(state.balance),
+              formatAppCurrency(context, state.balance),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 35,
@@ -325,7 +325,7 @@ class _CategoryBreakdownRow extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      formatCurrency(amount),
+                      formatAppCurrency(context, amount),
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ],

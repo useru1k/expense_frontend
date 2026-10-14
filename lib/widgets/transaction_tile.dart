@@ -43,7 +43,7 @@ class TransactionTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Text(
-            '${transaction.isIncome ? '+' : '-'}${formatCurrency(transaction.amount)}',
+            '${transaction.isIncome ? '+' : '-'}${formatAppCurrency(context, transaction.amount)}',
             style: TextStyle(
               color: amountColor,
               fontWeight: FontWeight.w700,

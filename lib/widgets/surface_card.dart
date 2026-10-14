@@ -28,7 +28,10 @@ class SurfaceCard extends StatelessWidget {
           color: Theme.of(context).dividerColor.withValues(alpha: 0.55),
         ),
       ),
-      child: child,
+      child: Material(
+        color: Colors.transparent,
+        child: child,
+      ),
     );
     if (onTap == null) return card;
     return InkWell(

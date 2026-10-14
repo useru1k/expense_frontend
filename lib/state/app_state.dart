@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/mock_data.dart';
 import '../models/budget.dart';
 import '../models/category.dart';
+import '../models/currency.dart';
 import '../models/expense_transaction.dart';
 
 class AppState extends ChangeNotifier {
@@ -18,7 +19,9 @@ class AppState extends ChangeNotifier {
   final List<CategoryBudget> budgets;
   DateTime selectedMonth;
   ThemeMode themeMode = ThemeMode.dark;
-  String currencySymbol = '\$';
+  CurrencyOption selectedCurrency = CurrencyOption.usd;
+
+  String get currencySymbol => selectedCurrency.symbol;
 
   List<ExpenseTransaction> get transactions => List.unmodifiable(_transactions);
 
@@ -89,6 +92,11 @@ class AppState extends ChangeNotifier {
 
   void toggleTheme(bool useDarkTheme) {
     themeMode = useDarkTheme ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+  }
+
+  void setCurrency(CurrencyOption currency) {
+    selectedCurrency = currency;
     notifyListeners();
   }
 }

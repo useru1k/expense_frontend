@@ -43,7 +43,7 @@ class StatCard extends StatelessWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                formatCurrency(amount),
+                formatAppCurrency(context, amount),
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,

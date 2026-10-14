@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+
+import '../state/app_state.dart';
+
 String formatCurrency(double amount, {String symbol = '\$'}) {
   final fixed = amount.abs().toStringAsFixed(2);
   final parts = fixed.split('.');
@@ -18,6 +22,20 @@ String formatCompactCurrency(double amount, {String symbol = '\$'}) {
     return '$symbol${(amount / 1000).toStringAsFixed(1)}k';
   }
   return '$symbol${amount.toStringAsFixed(0)}';
+}
+
+String formatAppCurrency(BuildContext context, double amount) {
+  return formatCurrency(
+    amount,
+    symbol: AppScope.of(context).currencySymbol,
+  );
+}
+
+String formatAppCompactCurrency(BuildContext context, double amount) {
+  return formatCompactCurrency(
+    amount,
+    symbol: AppScope.of(context).currencySymbol,
+  );
 }
 
 String formatDate(DateTime date) {

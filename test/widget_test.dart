@@ -1,5 +1,6 @@
 import 'package:expense_tracker/data/mock_data.dart';
 import 'package:expense_tracker/main.dart';
+import 'package:expense_tracker/models/currency.dart';
 import 'package:expense_tracker/models/expense_transaction.dart';
 import 'package:expense_tracker/state/app_state.dart';
 import 'package:flutter/material.dart';
@@ -29,22 +30,52 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Total balance'), findsOneWidget);
-    await tester.tap(find.text('Transactions'));
+    await tester.tap(find.byIcon(Icons.receipt_long_outlined));
     await tester.pumpAndSettle();
     expect(find.text('Keep a clear view of every money move.'), findsOneWidget);
 
-    await tester.tap(find.text('Home'));
+    await tester.tap(find.byIcon(Icons.grid_view_outlined));
     await tester.pumpAndSettle();
+    expect(find.text('Total balance'), findsOneWidget);
     await tester.tap(find.text('Add transaction'));
     await tester.pumpAndSettle();
     expect(find.text('How much?'), findsOneWidget);
 
     await tester.enterText(find.byType(TextFormField).at(0), '25.50');
     await tester.enterText(find.byType(TextFormField).at(1), 'Test coffee');
-    await tester.tap(find.text('Save expense'));
+    final saveButton = find.widgetWithText(FilledButton, 'Save expense').first;
+    await tester.drag(
+      find.byType(SingleChildScrollView),
+      const Offset(0, -500),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(saveButton);
     await tester.pumpAndSettle();
 
+    expect(find.text('How much?'), findsNothing);
+    expect(find.text('Total balance'), findsOneWidget);
+    final appState = AppScope.of(tester.element(find.byType(MaterialApp)));
+    expect(appState.transactions.any((item) => item.title == 'Test coffee'), isTrue);
+    expect(appState.currentMonthTransactions.any((item) => item.title == 'Test coffee'), isTrue);
+    await tester.scrollUntilVisible(
+      find.text('Test coffee'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Test coffee'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.tune_outlined));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Currency'));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose currency'), findsOneWidget);
+    await tester.tap(find.text('Indian Rupee'));
+    await tester.pumpAndSettle();
+    expect(find.text('Indian Rupee (INR)'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.grid_view_outlined));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('₹'), findsWidgets);
   });
 
   test('transaction model exposes income state', () {
@@ -59,5 +90,18 @@ void main() {
     );
 
     expect(transaction.isIncome, isTrue);
+  });
+
+  test('currency selection updates the shared currency symbol', () {
+    final state = AppState();
+
+    expect(state.currencySymbol, '\$');
+    state.setCurrency(CurrencyOption.inr);
+    expect(state.selectedCurrency.code, 'INR');
+    expect(state.currencySymbol, '₹');
+    state.setCurrency(CurrencyOption.eur);
+    expect(state.currencySymbol, '€');
+
+    state.dispose();
   });
 }

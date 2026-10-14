@@ -76,6 +76,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = AppScope.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add transaction'),
@@ -91,129 +92,133 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             final horizontalPadding = constraints.maxWidth > 680 ? 32.0 : 20.0;
             return Form(
               key: _formKey,
-              child: ListView(
+              child: SingleChildScrollView(
                 padding: EdgeInsets.fromLTRB(
                     horizontalPadding, 8, horizontalPadding, 28),
-                children: [
-                  _TypeToggle(
-                    isIncome: _isIncome,
-                    onChanged: (value) => setState(() => _isIncome = value),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'How much?',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _amountController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      final amount = double.tryParse(
-                          value?.replaceAll(',', '').trim() ?? '');
-                      if (amount == null || amount <= 0)
-                        return 'Enter an amount greater than zero';
-                      return null;
-                    },
-                    decoration: const InputDecoration(
-                      prefixText: '\$ ',
-                      hintText: '0.00',
-                      prefixIcon: Icon(Icons.attach_money_rounded),
+                child: Column(
+                  children: [
+                    _TypeToggle(
+                      isIncome: _isIncome,
+                      onChanged: (value) => setState(() => _isIncome = value),
                     ),
-                    style: const TextStyle(
-                        fontSize: 26, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Details',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _titleController,
-                    textCapitalization: TextCapitalization.sentences,
-                    textInputAction: TextInputAction.next,
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Add a short title'
-                        : null,
-                    decoration: const InputDecoration(
-                      labelText: 'Title',
-                      hintText: 'e.g. Coffee with friends',
-                      prefixIcon: Icon(Icons.edit_outlined),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<ExpenseCategory>(
-                    value: _category,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
-                      prefixIcon: Icon(Icons.category_outlined),
-                    ),
-                    items: [
-                      for (final category in ExpenseCategory.values)
-                        DropdownMenuItem(
-                          value: category,
-                          child: Row(
-                            children: [
-                              CategoryIcon(category: category, size: 28),
-                              const SizedBox(width: 10),
-                              Text(category.label),
-                            ],
+                    const SizedBox(height: 24),
+                    Text(
+                      'How much?',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
-                        ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) setState(() => _category = value);
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    readOnly: true,
-                    controller: _dateController,
-                    onTap: _pickDate,
-                    decoration: const InputDecoration(
-                      labelText: 'Date',
-                      prefixIcon: Icon(Icons.calendar_today_outlined),
-                      suffixIcon: Icon(Icons.keyboard_arrow_down_rounded),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _notesController,
-                    textCapitalization: TextCapitalization.sentences,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Add context for future you',
-                      prefixIcon: Icon(Icons.notes_outlined),
-                      alignLabelWithHint: true,
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _amountController,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      textInputAction: TextInputAction.next,
+                      validator: (value) {
+                        final amount = double.tryParse(
+                            value?.replaceAll(',', '').trim() ?? '');
+                        if (amount == null || amount <= 0) {
+                          return 'Enter an amount greater than zero';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        prefixText: '${appState.currencySymbol} ',
+                        hintText: '0.00',
+                        prefixIcon: Icon(Icons.attach_money_rounded),
+                      ),
+                      style: const TextStyle(
+                          fontSize: 26, fontWeight: FontWeight.w800),
                     ),
-                  ),
-                  const SizedBox(height: 28),
-                  FilledButton.icon(
-                    onPressed: _save,
-                    icon: const Icon(Icons.check_rounded),
-                    label: Text(_isIncome ? 'Save income' : 'Save expense'),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(54),
-                      backgroundColor: _isIncome ? AppColors.greenDeep : null,
+                    const SizedBox(height: 20),
+                    Text(
+                      'Details',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(54),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _titleController,
+                      textCapitalization: TextCapitalization.sentences,
+                      textInputAction: TextInputAction.next,
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? 'Add a short title'
+                              : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Title',
+                        hintText: 'e.g. Coffee with friends',
+                        prefixIcon: Icon(Icons.edit_outlined),
+                      ),
                     ),
-                    child: const Text('Cancel'),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<ExpenseCategory>(
+                      initialValue: _category,
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                        prefixIcon: Icon(Icons.category_outlined),
+                      ),
+                      items: [
+                        for (final category in ExpenseCategory.values)
+                          DropdownMenuItem(
+                            value: category,
+                            child: Row(
+                              children: [
+                                CategoryIcon(category: category, size: 28),
+                                const SizedBox(width: 10),
+                                Text(category.label),
+                              ],
+                            ),
+                          ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) setState(() => _category = value);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      readOnly: true,
+                      controller: _dateController,
+                      onTap: _pickDate,
+                      decoration: const InputDecoration(
+                        labelText: 'Date',
+                        prefixIcon: Icon(Icons.calendar_today_outlined),
+                        suffixIcon: Icon(Icons.keyboard_arrow_down_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _notesController,
+                      textCapitalization: TextCapitalization.sentences,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        labelText: 'Notes (optional)',
+                        hintText: 'Add context for future you',
+                        prefixIcon: Icon(Icons.notes_outlined),
+                        alignLabelWithHint: true,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    FilledButton.icon(
+                      onPressed: _save,
+                      icon: const Icon(Icons.check_rounded),
+                      label: Text(_isIncome ? 'Save income' : 'Save expense'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(54),
+                        backgroundColor: _isIncome ? AppColors.greenDeep : null,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(54),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ],
+                ),
               ),
             );
           },
