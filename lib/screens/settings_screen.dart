@@ -121,7 +121,7 @@ class SettingsScreen extends StatelessWidget {
                       leading: const Icon(Icons.info_outline_rounded),
                       title: const Text('About this preview'),
                       subtitle: const Text(
-                          'Local mock data only — no account or bank connection.'),
+                          'Transactions are stored in your connected finance database.'),
                       onTap: () => showAboutDialog(
                         context: context,
                         applicationName: 'Lumen Finance',

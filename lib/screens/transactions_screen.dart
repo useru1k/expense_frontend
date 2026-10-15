@@ -65,6 +65,73 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     });
   }
 
+  Future<void> _deleteTransaction(
+    AppState state,
+    ExpenseTransaction transaction,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete transaction?'),
+        content: Text('Remove “${transaction.title}” permanently?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete != true) return;
+
+    try {
+      await state.deleteTransaction(transaction.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Transaction deleted')),
+      );
+    } catch (_) {
+      // The shared app banner contains the backend error.
+    }
+  }
+
+  Future<void> _clearAllTransactions(AppState state) async {
+    final shouldClear = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Start fresh?'),
+        content: const Text(
+          'This will permanently remove every expense and income transaction.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Remove all'),
+          ),
+        ],
+      ),
+    );
+    if (shouldClear != true) return;
+
+    try {
+      await state.clearTransactions();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All transactions removed')),
+      );
+    } catch (_) {
+      // The shared app banner contains the backend error.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
@@ -80,11 +147,24 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             padding: EdgeInsets.fromLTRB(
                 horizontalPadding, 22, horizontalPadding, 30),
             children: [
-              Text(
-                'Transactions',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Transactions',
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                     ),
+                  ),
+                  if (state.transactions.isNotEmpty)
+                    IconButton(
+                      onPressed: () => _clearAllTransactions(state),
+                      tooltip: 'Remove all transactions',
+                      icon: const Icon(Icons.delete_sweep_outlined),
+                    ),
+                ],
               ),
               const SizedBox(height: 6),
               Text(
@@ -178,15 +258,25 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: transactions.isEmpty
-                    ? const EmptyState(
-                        title: 'No matches found',
-                        message: 'Try changing your search or filters.',
-                        icon: Icons.search_off_rounded,
+                    ? EmptyState(
+                        title: hasFilters
+                            ? 'No matches found'
+                            : 'No transactions yet',
+                        message: hasFilters
+                            ? 'Try changing your search or filters.'
+                            : 'Add your first expense or income to get started.',
+                        icon: hasFilters
+                            ? Icons.search_off_rounded
+                            : Icons.receipt_long_outlined,
                       )
                     : Column(
                         children: [
                           for (final transaction in transactions)
-                            TransactionTile(transaction: transaction),
+                            TransactionTile(
+                              transaction: transaction,
+                              onDelete: () =>
+                                  _deleteTransaction(state, transaction),
+                            ),
                         ],
                       ),
               ),

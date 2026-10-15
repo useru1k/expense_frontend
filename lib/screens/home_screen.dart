@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/category.dart';
+import '../models/expense_transaction.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/currency_formatter.dart';
@@ -21,6 +22,41 @@ class HomeScreen extends StatelessWidget {
 
   final VoidCallback onOpenAdd;
   final VoidCallback onViewAllTransactions;
+
+  static Future<void> _deleteTransaction(
+    BuildContext context,
+    AppState state,
+    ExpenseTransaction transaction,
+  ) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete transaction?'),
+        content: Text('Remove “${transaction.title}” permanently?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete != true) return;
+
+    try {
+      await state.deleteTransaction(transaction.id);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Transaction deleted')),
+      );
+    } catch (_) {
+      // The shared app banner contains the backend error.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +197,11 @@ class HomeScreen extends StatelessWidget {
                     : Column(
                         children: [
                           for (final transaction in recentTransactions)
-                            TransactionTile(transaction: transaction),
+                            TransactionTile(
+                              transaction: transaction,
+                              onDelete: () => _deleteTransaction(
+                                  context, state, transaction),
+                            ),
                         ],
                       ),
               ),

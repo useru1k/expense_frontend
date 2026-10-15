@@ -1,5 +1,5 @@
-import 'package:expense_tracker/data/mock_data.dart';
 import 'package:expense_tracker/main.dart';
+import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/currency.dart';
 import 'package:expense_tracker/models/expense_transaction.dart';
 import 'package:expense_tracker/state/app_state.dart';
@@ -7,20 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('mock data totals are calculated from the transaction list', () {
+  test('a fresh app starts with no transactions or totals', () {
     final reference = DateTime(2026, 10, 11);
     final state = AppState(now: reference);
-    final transactions = MockData.transactions(now: reference);
-    final income = transactions
-        .where((transaction) => transaction.isIncome)
-        .fold<double>(0, (sum, transaction) => sum + transaction.amount);
-    final expenses = transactions
-        .where((transaction) => !transaction.isIncome)
-        .fold<double>(0, (sum, transaction) => sum + transaction.amount);
 
-    expect(income, 6550);
-    expect(expenses, closeTo(2184.16, 0.001));
-    expect(state.totalIncome, greaterThan(0));
+    expect(state.transactions, isEmpty);
+    expect(state.totalIncome, 0);
+    expect(state.totalExpenses, 0);
+    expect(state.balance, 0);
     state.dispose();
   });
 
@@ -55,8 +49,12 @@ void main() {
     expect(find.text('How much?'), findsNothing);
     expect(find.text('Total balance'), findsOneWidget);
     final appState = AppScope.of(tester.element(find.byType(MaterialApp)));
-    expect(appState.transactions.any((item) => item.title == 'Test coffee'), isTrue);
-    expect(appState.currentMonthTransactions.any((item) => item.title == 'Test coffee'), isTrue);
+    expect(appState.transactions.any((item) => item.title == 'Test coffee'),
+        isTrue);
+    expect(
+        appState.currentMonthTransactions
+            .any((item) => item.title == 'Test coffee'),
+        isTrue);
     await tester.scrollUntilVisible(
       find.text('Test coffee'),
       300,
@@ -85,8 +83,7 @@ void main() {
       amount: 100,
       date: DateTime(2026, 10, 1),
       type: TransactionType.income,
-      category:
-          MockData.transactions(now: DateTime(2026, 10, 11)).first.category,
+      category: ExpenseCategory.other,
     );
 
     expect(transaction.isIncome, isTrue);

@@ -1,6 +1,6 @@
 # Lumen Finance — Flutter client
 
-The Flutter client currently runs on mock data while the backend contract is being connected. The FastAPI backend now lives in the sibling `C:\Yuvan\expense_backend` project and provides transaction, budget, and monthly summary endpoints backed by MongoDB Atlas.
+The Flutter client starts with an empty transaction list and uses the FastAPI backend in the sibling `C:\Yuvan\expense_backend` project as its source of truth. The backend provides transaction, budget, and monthly summary endpoints backed by MongoDB Atlas.
 
 ## Run locally
 
@@ -32,10 +32,10 @@ flutter pub get
 flutter run -d chrome
 ```
 
-The app uses `http://127.0.0.1:8000` by default and sends the development user header `X-User-Id: demo-user`. To use another API host:
+The app uses `http://127.0.0.1:8000` by default and sends the development user header `X-User-Id: demo-user`. Transactions can be added as either income or expense, deleted individually, or cleared all at once from the Transactions screen. To use another API host:
 
 ```powershell
 flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:8000 --dart-define=API_USER_ID=demo-user
 ```
 
-For an Android emulator, use `http://10.0.2.2:8000` as the API URL. The add-transaction form now writes to the backend, and app startup loads transactions and budgets from MongoDB Atlas through FastAPI.
+For an Android emulator, use `http://10.0.2.2:8000` as the API URL. The add-transaction form writes to the backend, and app startup loads transactions and budgets from MongoDB Atlas through FastAPI.

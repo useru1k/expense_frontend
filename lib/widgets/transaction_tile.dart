@@ -6,9 +6,14 @@ import '../utils/currency_formatter.dart';
 import 'category_icon.dart';
 
 class TransactionTile extends StatelessWidget {
-  const TransactionTile({required this.transaction, super.key});
+  const TransactionTile({
+    required this.transaction,
+    this.onDelete,
+    super.key,
+  });
 
   final ExpenseTransaction transaction;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +55,23 @@ class TransactionTile extends StatelessWidget {
               fontSize: 14,
             ),
           ),
+          if (onDelete != null) ...[
+            const SizedBox(width: 4),
+            PopupMenuButton<String>(
+              tooltip: 'Transaction actions',
+              padding: EdgeInsets.zero,
+              onSelected: (value) {
+                if (value == 'delete') onDelete!();
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Text('Delete transaction'),
+                ),
+              ],
+              icon: const Icon(Icons.more_vert_rounded, size: 20),
+            ),
+          ],
         ],
       ),
     );

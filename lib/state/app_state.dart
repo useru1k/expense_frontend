@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
 import '../models/budget.dart';
 import '../models/category.dart';
 import '../models/currency.dart';
@@ -10,8 +9,8 @@ import '../services/api_client.dart';
 class AppState extends ChangeNotifier {
   AppState({DateTime? now, ApiClient? apiClient})
       : _apiClient = apiClient,
-        _transactions = MockData.transactions(now: now),
-        _budgets = MockData.budgets(),
+        _transactions = <ExpenseTransaction>[],
+        _budgets = <CategoryBudget>[],
         selectedMonth = DateTime(
           (now ?? DateTime.now()).year,
           (now ?? DateTime.now()).month,
@@ -128,6 +127,32 @@ class AppState extends ChangeNotifier {
         ..removeWhere((item) => item.id == saved.id)
         ..add(saved)
         ..sort((a, b) => b.date.compareTo(a.date));
+      _errorMessage = null;
+      notifyListeners();
+    } catch (error) {
+      _errorMessage = _friendlyError(error);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTransaction(String transactionId) async {
+    try {
+      await _apiClient?.deleteTransaction(transactionId);
+      _transactions.removeWhere((item) => item.id == transactionId);
+      _errorMessage = null;
+      notifyListeners();
+    } catch (error) {
+      _errorMessage = _friendlyError(error);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> clearTransactions() async {
+    try {
+      await _apiClient?.deleteAllTransactions();
+      _transactions.clear();
       _errorMessage = null;
       notifyListeners();
     } catch (error) {
