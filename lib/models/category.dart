@@ -12,6 +12,13 @@ enum ExpenseCategory {
   other,
 }
 
+ExpenseCategory expenseCategoryFromApiValue(String value) {
+  return ExpenseCategory.values.firstWhere(
+    (category) => category.name == value,
+    orElse: () => throw FormatException('Unknown expense category: $value'),
+  );
+}
+
 extension ExpenseCategoryDetails on ExpenseCategory {
   String get label {
     switch (this) {

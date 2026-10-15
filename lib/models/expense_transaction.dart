@@ -21,6 +21,32 @@ class ExpenseTransaction {
   final ExpenseCategory category;
   final String? notes;
 
+  factory ExpenseTransaction.fromJson(Map<String, dynamic> json) {
+    final rawAmount = json['amount'];
+    return ExpenseTransaction(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      amount: rawAmount is num
+          ? rawAmount.toDouble()
+          : double.parse(rawAmount.toString()),
+      date: DateTime.parse(json['date'] as String),
+      type: TransactionType.values.byName(json['type'] as String),
+      category: expenseCategoryFromApiValue(json['category'] as String),
+      notes: json['notes'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toApiJson() {
+    return {
+      'title': title,
+      'amount': amount,
+      'date': date.toIso8601String().split('T').first,
+      'type': type.name,
+      'category': category.name,
+      'notes': notes,
+    };
+  }
+
   bool get isIncome => type == TransactionType.income;
 
   ExpenseTransaction copyWith({

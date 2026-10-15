@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 import 'screens/main_navigation.dart';
+import 'services/api_client.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
 
 void main() {
-  runApp(const ExpenseTrackerApp());
+  runApp(const ExpenseTrackerApp(useBackend: true));
 }
 
 class ExpenseTrackerApp extends StatefulWidget {
-  const ExpenseTrackerApp({super.key});
+  const ExpenseTrackerApp({super.key, this.useBackend = false});
+
+  final bool useBackend;
 
   @override
   State<ExpenseTrackerApp> createState() => _ExpenseTrackerAppState();
@@ -21,7 +24,12 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
   @override
   void initState() {
     super.initState();
-    _appState = AppState();
+    _appState = AppState(
+      apiClient: widget.useBackend ? ApiClient() : null,
+    );
+    if (widget.useBackend) {
+      _appState.loadFromApi();
+    }
   }
 
   @override

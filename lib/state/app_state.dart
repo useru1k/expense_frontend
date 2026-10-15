@@ -5,18 +5,23 @@ import '../models/budget.dart';
 import '../models/category.dart';
 import '../models/currency.dart';
 import '../models/expense_transaction.dart';
+import '../services/api_client.dart';
 
 class AppState extends ChangeNotifier {
-  AppState({DateTime? now})
-      : _transactions = MockData.transactions(now: now),
-        budgets = MockData.budgets(),
+  AppState({DateTime? now, ApiClient? apiClient})
+      : _apiClient = apiClient,
+        _transactions = MockData.transactions(now: now),
+        _budgets = MockData.budgets(),
         selectedMonth = DateTime(
           (now ?? DateTime.now()).year,
           (now ?? DateTime.now()).month,
         );
 
+  final ApiClient? _apiClient;
   final List<ExpenseTransaction> _transactions;
-  final List<CategoryBudget> budgets;
+  final List<CategoryBudget> _budgets;
+  bool _isLoading = false;
+  String? _errorMessage;
   DateTime selectedMonth;
   ThemeMode themeMode = ThemeMode.dark;
   CurrencyOption selectedCurrency = CurrencyOption.usd;
@@ -24,6 +29,12 @@ class AppState extends ChangeNotifier {
   String get currencySymbol => selectedCurrency.symbol;
 
   List<ExpenseTransaction> get transactions => List.unmodifiable(_transactions);
+
+  List<CategoryBudget> get budgets => List.unmodifiable(_budgets);
+
+  bool get isLoading => _isLoading;
+
+  String? get errorMessage => _errorMessage;
 
   List<ExpenseTransaction> get currentMonthTransactions {
     return _transactions
@@ -79,10 +90,51 @@ class AppState extends ChangeNotifier {
     return spendingByCategory[category] ?? 0;
   }
 
-  void addTransaction(ExpenseTransaction transaction) {
-    _transactions.add(transaction);
-    _transactions.sort((a, b) => b.date.compareTo(a.date));
+  Future<void> loadFromApi() async {
+    final apiClient = _apiClient;
+    if (apiClient == null) return;
+
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
+    try {
+      final results = await Future.wait<dynamic>([
+        apiClient.fetchTransactions(),
+        apiClient.fetchBudgets(),
+      ]);
+      _transactions
+        ..clear()
+        ..addAll(results[0] as List<ExpenseTransaction>)
+        ..sort((a, b) => b.date.compareTo(a.date));
+      _budgets
+        ..clear()
+        ..addAll(results[1] as List<CategoryBudget>);
+    } catch (error) {
+      _transactions.clear();
+      _budgets.clear();
+      _errorMessage = _friendlyError(error);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> addTransaction(ExpenseTransaction transaction) async {
+    try {
+      final saved = _apiClient == null
+          ? transaction
+          : await _apiClient.createTransaction(transaction);
+      _transactions
+        ..removeWhere((item) => item.id == saved.id)
+        ..add(saved)
+        ..sort((a, b) => b.date.compareTo(a.date));
+      _errorMessage = null;
+      notifyListeners();
+    } catch (error) {
+      _errorMessage = _friendlyError(error);
+      notifyListeners();
+      rethrow;
+    }
   }
 
   void setSelectedMonth(DateTime month) {
@@ -98,6 +150,17 @@ class AppState extends ChangeNotifier {
   void setCurrency(CurrencyOption currency) {
     selectedCurrency = currency;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _apiClient?.dispose();
+    super.dispose();
+  }
+
+  String _friendlyError(Object error) {
+    if (error is ApiException) return error.message;
+    return 'Could not connect to the backend. Check that FastAPI is running.';
   }
 }
 

@@ -6,6 +6,7 @@ import 'budgets_screen.dart';
 import 'home_screen.dart';
 import 'settings_screen.dart';
 import 'transactions_screen.dart';
+import '../state/app_state.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -27,6 +28,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = AppScope.of(context);
     final pages = [
       HomeScreen(
         onOpenAdd: _openAddTransaction,
@@ -39,7 +41,24 @@ class _MainNavigationState extends State<MainNavigation> {
     ];
 
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: pages),
+      body: Column(
+        children: [
+          if (appState.isLoading) const LinearProgressIndicator(minHeight: 2),
+          if (appState.errorMessage != null)
+            MaterialBanner(
+              content: Text(appState.errorMessage!),
+              actions: [
+                TextButton(
+                  onPressed: appState.loadFromApi,
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          Expanded(
+            child: IndexedStack(index: _selectedIndex, children: pages),
+          ),
+        ],
+      ),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
               onPressed: _openAddTransaction,

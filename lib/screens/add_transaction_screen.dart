@@ -54,24 +54,31 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     final amount =
         double.parse(_amountController.text.replaceAll(',', '').trim());
-    AppScope.of(context).addTransaction(
-      ExpenseTransaction(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        title: _titleController.text.trim(),
-        amount: amount,
-        date: _date,
-        type: _isIncome ? TransactionType.income : TransactionType.expense,
-        category: _category,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-      ),
-    );
-    Navigator.of(context).pop();
+    try {
+      await AppScope.of(context).addTransaction(
+        ExpenseTransaction(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          title: _titleController.text.trim(),
+          amount: amount,
+          date: _date,
+          type: _isIncome ? TransactionType.income : TransactionType.expense,
+          category: _category,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+      if (mounted) Navigator.of(context).pop();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save transaction: $error')),
+      );
+    }
   }
 
   @override
@@ -201,7 +208,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                     const SizedBox(height: 28),
                     FilledButton.icon(
-                      onPressed: _save,
+                      onPressed: () => _save(),
                       icon: const Icon(Icons.check_rounded),
                       label: Text(_isIncome ? 'Save income' : 'Save expense'),
                       style: FilledButton.styleFrom(
