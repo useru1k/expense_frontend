@@ -6,6 +6,7 @@ import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../utils/currency_formatter.dart';
 import '../widgets/category_icon.dart';
+import '../widgets/brand_logo.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/mini_bar_chart.dart';
 import '../widgets/section_header.dart';
@@ -103,17 +104,7 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const CircleAvatar(
-                    radius: 23,
-                    backgroundColor: Color(0xFF29423D),
-                    child: Text(
-                      'AS',
-                      style: TextStyle(
-                        color: AppColors.green,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
+                  const BrandLogo(size: 46, padding: 7),
                 ],
               ),
               const SizedBox(height: 24),

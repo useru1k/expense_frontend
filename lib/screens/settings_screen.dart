@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/currency.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/brand_logo.dart';
 import '../widgets/section_header.dart';
 import '../widgets/surface_card.dart';
 
@@ -39,18 +40,7 @@ class SettingsScreen extends StatelessWidget {
               SurfaceCard(
                 child: Row(
                   children: [
-                    const CircleAvatar(
-                      radius: 29,
-                      backgroundColor: Color(0xFF29423D),
-                      child: Text(
-                        'AS',
-                        style: TextStyle(
-                          color: AppColors.green,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
+                    const BrandLogo(size: 58, padding: 8),
                     const SizedBox(width: 14),
                     const Expanded(
                       child: Column(
